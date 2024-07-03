@@ -9,13 +9,13 @@ const AppLayout = ({ children }) => {
   const [isSidebarShrinked, setIsSidebarShrinked] = useState(false);
 
   return (
-    <div className={cn(" grid grid-cols-12 ")}>
-      <div className={cn("col-span-1", { " col-span-2": isSidebarShrinked })}>
+    <div className={cn(" h-screen w-screen overflow-auto  flex ")}>
+      <div className={cn(" w-[10%] relative", { " w-[20%]": isSidebarShrinked })}>
         <Sidebar setIsSidebarShrinked={setIsSidebarShrinked} />
       </div>
-      <div className={cn("col-span-11", { " col-span-10": isSidebarShrinked })}>
+      <div className={cn("w-[90%]", { " w-[80%]": isSidebarShrinked })}>
         <Navbar />
-        {children}
+        <div className=" border-8 border-purple-600 h-[200vh] w-full">{children}</div>
       </div>
     </div>
   );

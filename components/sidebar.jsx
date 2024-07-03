@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const Sidebar = ({ setIsSidebarShrinked }) => {
   const [sidebarClicked, setSidebarClicked] = useState(false);
   return (
-    <div className=" fixed border-2 w-full border-red-400 h-screen  ">
+    <div className=" fixed border-8 w-full border-red-400 h-screen">
       <div className="block md:hidden">
         <Sheet>
           <SheetTrigger>Open</SheetTrigger>
