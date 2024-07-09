@@ -16,10 +16,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <div className=" h-screen w-screen flex">
           <Sidebar />
-          <div className=" w-full overflow-y-auto">
-            <Navbar />
-            {children}
-          </div>
+          <div className=" w-full overflow-y-auto">{children}</div>
         </div>
       </body>
     </html>
