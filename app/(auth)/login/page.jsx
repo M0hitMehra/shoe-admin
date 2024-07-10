@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,8 @@ import { server } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader as LoadingIcon, Eye, EyeOff } from "lucide-react"; // Import eye icons
 import axios from "axios";
+import useUserStore from "@/store/useAuthStore";
+import Loader from "@/components/loader";
 
 const loginSchema = z.object({
   email: z
@@ -26,6 +28,12 @@ const loginSchema = z.object({
 });
 
 const Login = () => {
+  const { user, loading, error, fetchUser, userFetched } = useUserStore();
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
   const {
     register,
     handleSubmit,
@@ -63,7 +71,7 @@ const Login = () => {
       }
       reset();
     } catch (error) {
-        console.error(error);
+      console.error(error);
       setIsLoading(false);
       toast({
         variant: "destructive",
@@ -77,6 +85,15 @@ const Login = () => {
   const handlePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (user && userFetched) {
+    router.push("/");
+    return null;
+  }
 
   return (
     <div className="h-screen w-full flex justify-center items-center">

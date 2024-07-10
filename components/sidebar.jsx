@@ -51,6 +51,10 @@ const Sidebar = () => {
 
   const [selectedOne, setSelectedOne] = useState(window.location.pathname);
 
+  useEffect(() => {
+    setSelectedOne(window.location.pathname);
+  }, []);
+
   return (
     <div
       className={cn(
@@ -67,7 +71,6 @@ const Sidebar = () => {
         )}
         onClick={() => setOpen((prev) => !prev)}
       />
-
       <ul className=" flex flex-col gap-10 pt-10 justify-between">
         {sidebarArray?.map((item, i) => (
           <SidebarTabs

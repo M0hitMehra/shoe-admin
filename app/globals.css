@@ -107,3 +107,22 @@ body,
 ::-webkit-scrollbar-thumb:hover {
   background: #6b5b42;
 }
+
+
+@keyframes gradient-float {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-gradient {
+  background: linear-gradient(270deg, #7c3aed, #4f46e5);
+  background-size: 400% 400%;
+  animation: gradient-float 4s ease infinite;
+}
