@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <div className=" h-screen w-screen flex">
           <Sidebar />
-          <div className=" w-full overflow-y-auto p-8">{children}</div>
+          <div className=" w-full overflow-y-auto lg:p-8 p-1">{children}</div>
         </div>
       </body>
     </html>
