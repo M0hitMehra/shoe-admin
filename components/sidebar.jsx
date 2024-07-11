@@ -11,7 +11,6 @@ import {
   ListOrderedIcon,
   StoreIcon,
 } from "lucide-react";
-import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import {
   Sheet,
@@ -23,9 +22,7 @@ import {
 } from "@/components/ui/sheet";
 
 const Sidebar = () => {
-  const [open, setOpen] = useState(
-    typeof window !== "undefined" && window.innerWidth >= 768
-  );
+  const [open, setOpen] = useState(true);
 
   const sidebarArray = [
     {
@@ -59,11 +56,32 @@ const Sidebar = () => {
     },
   ];
 
-  const [selectedOne, setSelectedOne] = useState(window.location.pathname);
+  const [selectedOne, setSelectedOne] = useState("");
 
   useEffect(() => {
-    setSelectedOne(window.location.pathname);
+    if (typeof window !== "undefined") {
+      // Set initial state based on screen size
+      if (window.innerWidth < 768) {
+        setOpen(false);
+      } else {
+        setOpen(true);
+      }
+      setSelectedOne(window.location.pathname);
+
+      // Update the state if the window is resized
+      const handleResize = () => {
+        if (window.innerWidth < 768) {
+          setOpen(false);
+        } else {
+          setOpen(true);
+        }
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
   }, []);
+
 
   return (
     <div
