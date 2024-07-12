@@ -41,7 +41,7 @@ const Dashboard = () => {
             className="w-full h-full object-cover duration-1000 hover:scale-125"
           />
         </div>
-        <div className="animated-gradient shadow-lg rounded-b-md w-full h-full lg:p-5 p-1 flex flex-col gap-5">
+        <div className="animated-gradient shadow-lg rounded-b-md w-full h-full lg:p-5 p-2 flex flex-col gap-5">
           <div className=" grid grid-cols-2 justify-between items-center">
             <h3 className=" col-span-1  break-all  font-medium text-lg text-yellow-100">
               First Name

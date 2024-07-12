@@ -96,8 +96,8 @@ const Login = () => {
   }
 
   return (
-    <div className="h-screen w-full flex justify-center items-center">
-      <div className="w-1/2 m-20 p-8 rounded-md shadow-md shadow-black flex flex-col justify-center items-center gap-8">
+    <div className="h-[90vh] w-full flex justify-center items-center">
+      <div className="md:w-1/2 w-full p-8 rounded-md shadow-md shadow-black flex flex-col justify-center items-center gap-8">
         <div>
           <h1>Login (Only for admins and super admins)</h1>
           <Separator />

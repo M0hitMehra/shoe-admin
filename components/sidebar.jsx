@@ -9,6 +9,8 @@ import {
   BoxIcon,
   LayoutDashboard,
   ListOrderedIcon,
+  Menu,
+  Power,
   StoreIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -82,7 +84,6 @@ const Sidebar = () => {
     }
   }, []);
 
-
   return (
     <div
       className={cn(
@@ -102,9 +103,9 @@ const Sidebar = () => {
 
       <Sheet>
         <SheetTrigger>
-          <ArrowLeftIcon
+          <Menu
             className={cn(
-              " bg-white rounded-full absolute md:hidden block    cursor-pointer duration-500 border border-purple-700",
+              " text-white rounded-full   md:hidden block cursor-pointer duration-500 border border-purple-700",
               { "  rotate-180": !open }
             )}
           />
@@ -142,6 +143,15 @@ const Sidebar = () => {
           />
         ))}
       </ul>
+
+      <Power
+        className={cn(
+          " p-1 rounded-full absolute bottom-5 cursor-pointer duration-500 border border-red-700 bg-red-700 text-white",
+          { "  rotate-180": !open },
+          { " w-full": open }
+        )}
+        onClick={() => setOpen((prev) => !prev)}
+      />
     </div>
   );
 };
