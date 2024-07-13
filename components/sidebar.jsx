@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn, server } from "@/lib/utils";
 import {
   ArrowLeftIcon,
   BookTypeIcon,
@@ -13,18 +13,23 @@ import {
   Power,
   StoreIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import {
+ import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "./ui/button";
+import GlobalAlert from "./global-alert";
+import axios from "axios";
+import GlobalTooltip from "./global-tooltip";
+import { toast } from "./ui/use-toast";
+import { useRouter } from "next/navigation";
 
 const Sidebar = () => {
   const [open, setOpen] = useState(true);
+  const router = useRouter();
 
   const sidebarArray = [
     {
@@ -60,6 +65,26 @@ const Sidebar = () => {
 
   const [selectedOne, setSelectedOne] = useState("");
 
+  const logoutHandler = async () => {
+    try {
+      const { data } = await axios.get(`${server}/auth/logout`, {
+        withCredentials: true,
+      });
+      if (data?.success) {
+        // router.push("/login");
+        toast({
+          title: "Logged out successfully",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: error?.response?.data?.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Set initial state based on screen size
@@ -87,7 +112,7 @@ const Sidebar = () => {
   return (
     <div
       className={cn(
-        " bg-purple-700 h-screen p-5 pt-8 md:w-20 w-16 relative  duration-500",
+        " bg-purple-700 h-screen p-5 pt-8 md:w-20 w-16 relative  duration-500 flex items-center  flex-col",
         {
           "md:w-72 w-16": open,
         }
@@ -144,13 +169,31 @@ const Sidebar = () => {
         ))}
       </ul>
 
-      <Power
-        className={cn(
-          " p-1 rounded-full absolute bottom-5 cursor-pointer duration-500 border border-red-700 bg-red-700 text-white",
-          { "  rotate-180": !open },
-          { " w-full": open }
-        )}
-        onClick={() => setOpen((prev) => !prev)}
+      <GlobalAlert
+        trigger={
+          <div className=" w-full  absolute bottom-5  flex justify-center items-center ">
+            <GlobalTooltip content={<p>Logout</p>}>
+              <Button
+                variant={"destructive"}
+                className={cn(
+                  " p-1 px-2 rounded-full cursor-pointer tranistion duration-500 shadow-lg text-white",
+                  {
+                    " rounded-lg p-2 px-4 text-md font-normal gap-2": open,
+                  }
+                )}
+              >
+                <Power />
+                <span className={cn("", { " hidden": !open })}>Logout</span>
+              </Button>
+            </GlobalTooltip>
+          </div>
+        }
+        heading={"Are you sure you want to log out?"}
+        description={
+          "Logging out from your account will result limited functionality of application."
+        }
+        confirmButtonTitle={"Logout"}
+        confirmButtonHandler={logoutHandler}
       />
     </div>
   );
