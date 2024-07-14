@@ -13,7 +13,7 @@ import {
   Power,
   StoreIcon,
 } from "lucide-react";
- import {
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -26,10 +26,11 @@ import axios from "axios";
 import GlobalTooltip from "./global-tooltip";
 import { toast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
+import useUserStore from "@/store/useAuthStore";
 
 const Sidebar = () => {
-  const [open, setOpen] = useState(true);
   const router = useRouter();
+  const { user } = useUserStore();
 
   const sidebarArray = [
     {
@@ -64,6 +65,7 @@ const Sidebar = () => {
   ];
 
   const [selectedOne, setSelectedOne] = useState("");
+  const [open, setOpen] = useState(true);
 
   const logoutHandler = async () => {
     try {
@@ -71,7 +73,7 @@ const Sidebar = () => {
         withCredentials: true,
       });
       if (data?.success) {
-        // router.push("/login");
+        router.push("/login");
         toast({
           title: "Logged out successfully",
         });
@@ -169,32 +171,34 @@ const Sidebar = () => {
         ))}
       </ul>
 
-      <GlobalAlert
-        trigger={
-          <div className=" w-full  absolute bottom-5  flex justify-center items-center ">
-            <GlobalTooltip content={<p>Logout</p>}>
-              <Button
-                variant={"destructive"}
-                className={cn(
-                  " p-1 px-2 rounded-full cursor-pointer tranistion duration-500 shadow-lg text-white",
-                  {
-                    " rounded-lg p-2 px-4 text-md font-normal gap-2": open,
-                  }
-                )}
-              >
-                <Power />
-                <span className={cn("", { " hidden": !open })}>Logout</span>
-              </Button>
-            </GlobalTooltip>
-          </div>
-        }
-        heading={"Are you sure you want to log out?"}
-        description={
-          "Logging out from your account will result limited functionality of application."
-        }
-        confirmButtonTitle={"Logout"}
-        confirmButtonHandler={logoutHandler}
-      />
+      {user && (
+        <GlobalAlert
+          trigger={
+            <div className=" w-full  absolute bottom-5  flex justify-center items-center ">
+              <GlobalTooltip content={<p>Logout</p>}>
+                <Button
+                  variant={"destructive"}
+                  className={cn(
+                    " p-1 px-2 rounded-full cursor-pointer tranistion duration-500 shadow-lg text-white",
+                    {
+                      " rounded-lg p-2 px-4 text-md font-normal gap-2": open,
+                    }
+                  )}
+                >
+                  <Power />
+                  <span className={cn("", { " hidden": !open })}>Logout</span>
+                </Button>
+              </GlobalTooltip>
+            </div>
+          }
+          heading={"Are you sure you want to log out?"}
+          description={
+            "Logging out from your account will result limited functionality of application."
+          }
+          confirmButtonTitle={"Logout"}
+          confirmButtonHandler={logoutHandler}
+        />
+      )}
     </div>
   );
 };

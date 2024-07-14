@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { server } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader as LoadingIcon, Eye, EyeOff } from "lucide-react"; // Import eye icons
+import { Loader as LoadingIcon, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import useUserStore from "@/store/useAuthStore";
 import Loader from "@/components/loader";
@@ -67,12 +67,11 @@ const Login = () => {
           title: "Logged in successfully",
           description: `Welcome to the store ${data?.user?.firstName}`,
         });
-        router.replace("/dashboard");
+        router.push("/dashboard");
       }
       reset();
     } catch (error) {
-      console.error(error);
-      setIsLoading(false);
+       setIsLoading(false);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
@@ -126,7 +125,7 @@ const Login = () => {
             <div className="relative">
               <Input
                 type={passwordVisible ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder={"Enter your password"}
                 {...register("password")}
               />
               <button

@@ -8,7 +8,7 @@ import { useEffect } from "react";
 export default function Home() {
   const router = useRouter();
 
-  const { user, loading, error, fetchUser } = useUserStore();
+  const { user, loading, error, fetchUser,userFetched } = useUserStore();
 
   useEffect(() => {
     fetchUser();
@@ -18,14 +18,10 @@ export default function Home() {
     return <Loader />;
   }
 
-  if (!user) {
+  if (!user && userFetched) {
     router.push("/login");
-    return;
+    return null;
   }
 
-  return (
-    <div className="p-8">
-
-    </div>
-  );
+  return <div className="p-8"></div>;
 }
