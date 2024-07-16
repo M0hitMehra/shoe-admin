@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { server } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader as LoadingIcon, Eye, EyeOff } from "lucide-react"; // Import eye icons
+import { Loader as LoadingIcon, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import useUserStore from "@/store/useAuthStore";
 import Loader from "@/components/loader";
@@ -67,12 +67,12 @@ const Login = () => {
           title: "Logged in successfully",
           description: `Welcome to the store ${data?.user?.firstName}`,
         });
-        router.replace("/dashboard");
+        router.push("/dashboard");
       }
       reset();
     } catch (error) {
-      console.error(error);
       setIsLoading(false);
+      console.error(error);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
@@ -86,18 +86,19 @@ const Login = () => {
     setPasswordVisible(!passwordVisible);
   };
 
+  useEffect(() => {
+    if (!loading && user && userFetched) {
+      router.push("/");
+    }
+  }, [loading, user, userFetched, router]);
+
   if (loading) {
     return <Loader />;
   }
 
-  if (user && userFetched) {
-    router.push("/");
-    return null;
-  }
-
   return (
-    <div className="h-screen w-full flex justify-center items-center">
-      <div className="w-1/2 m-20 p-8 rounded-md shadow-md shadow-black flex flex-col justify-center items-center gap-8">
+    <div className="h-[90vh] w-full flex justify-center items-center">
+      <div className="md:w-1/2 w-full p-8 rounded-md shadow-md shadow-black flex flex-col justify-center items-center gap-8">
         <div>
           <h1>Login (Only for admins and super admins)</h1>
           <Separator />
@@ -126,7 +127,7 @@ const Login = () => {
             <div className="relative">
               <Input
                 type={passwordVisible ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder={"Enter your password"}
                 {...register("password")}
               />
               <button
