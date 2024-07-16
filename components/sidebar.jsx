@@ -30,7 +30,7 @@ import useUserStore from "@/store/useAuthStore";
 
 const Sidebar = () => {
   const router = useRouter();
-  const { user } = useUserStore();
+  const { user,fetchUser } = useUserStore();
 
   const sidebarArray = [
     {
@@ -74,6 +74,7 @@ const Sidebar = () => {
       });
       if (data?.success) {
         router.push("/login");
+        window.location.reload();
         toast({
           title: "Logged out successfully",
         });

@@ -20,13 +20,14 @@ const Dashboard = () => {
     fetchUser();
   }, [fetchUser]);
 
+  useEffect(() => {
+    if (!loading && !user && userFetched) {
+      router.push("/login");
+    }
+  }, [loading, user, userFetched, router]);
+
   if (loading) {
     return <Loader />;
-  }
-
-  if (!user && userFetched) {
-    router.push("/login");
-    return null;
   }
 
   return (
@@ -52,35 +53,45 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-2   justify-between items-center">
-            <h3 className=" col-span-1  break-all  font-medium text-lg text-neutral-50">Last Name</h3>
+            <h3 className=" col-span-1  break-all  font-medium text-lg text-neutral-50">
+              Last Name
+            </h3>
             <span className=" col-span-1  break-all  flex justify-end font-normal text-lg text-neutral-50">
               {renderData(user?.lastName)}
             </span>
           </div>
 
           <div className=" grid grid-cols-2  justify-between items-center">
-            <h3 className="col-span-1 break-all font-medium text-lg text-neutral-50">Email</h3>
+            <h3 className="col-span-1 break-all font-medium text-lg text-neutral-50">
+              Email
+            </h3>
             <span className=" col-span-1 break-all  flex justify-end font-normal text-lg text-neutral-50">
               {renderData(user?.email)}
             </span>
           </div>
 
           <div className=" grid grid-cols-2  justify-between items-center">
-            <h3 className=" col-span-1 break-all font-medium text-lg text-neutral-50">Role</h3>
+            <h3 className=" col-span-1 break-all font-medium text-lg text-neutral-50">
+              Role
+            </h3>
             <span className=" col-span-1 break-all flex justify-end font-normal text-lg text-neutral-50">
               {renderData(user?.role)}
             </span>
           </div>
 
           <div className="  grid grid-cols-2  justify-between items-center">
-            <h3 className=" col-span-1 break-all font-medium text-lg text-neutral-50">Phone</h3>
+            <h3 className=" col-span-1 break-all font-medium text-lg text-neutral-50">
+              Phone
+            </h3>
             <span className=" col-span-1 break-all flex justify-end font-normal text-lg text-neutral-50">
               {renderData(user?.phone)}
             </span>
           </div>
 
           <div className="  grid grid-cols-2  justify-between items-center">
-            <h3 className="  col-span-1 break-all font-medium text-lg text-neutral-50">D.O.B</h3>
+            <h3 className="  col-span-1 break-all font-medium text-lg text-neutral-50">
+              D.O.B
+            </h3>
             <span className=" col-span-1 break-all flex justify-end font-normal text-lg text-neutral-50">
               {renderData(user?.dob)}
             </span>

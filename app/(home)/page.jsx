@@ -14,14 +14,19 @@ export default function Home() {
     fetchUser();
   }, [fetchUser]);
 
+
+  useEffect(() => {
+    if (!loading && !user && userFetched) {
+      router.push("/login");
+    }
+  }, [loading, user, userFetched, router]);
+
+
   if (loading) {
     return <Loader />;
   }
 
-  if (!user && userFetched) {
-    router.push("/login");
-    return null;
-  }
+   
 
   return <div className="p-8"></div>;
 }

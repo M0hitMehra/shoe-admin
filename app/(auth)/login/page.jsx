@@ -71,7 +71,8 @@ const Login = () => {
       }
       reset();
     } catch (error) {
-       setIsLoading(false);
+      setIsLoading(false);
+      console.error(error);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
@@ -85,13 +86,14 @@ const Login = () => {
     setPasswordVisible(!passwordVisible);
   };
 
+  useEffect(() => {
+    if (!loading && user && userFetched) {
+      router.push("/");
+    }
+  }, [loading, user, userFetched, router]);
+
   if (loading) {
     return <Loader />;
-  }
-
-  if (user && userFetched) {
-    router.push("/");
-    return null;
   }
 
   return (
