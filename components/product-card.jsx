@@ -14,8 +14,10 @@ import { Button } from "./ui/button";
 import axios from "axios";
 import { server } from "@/lib/utils";
 import { toast } from "./ui/use-toast";
+import GlobalDialog from "./global-dialog";
+import EditProduct from "./edit-product";
 
-const ProductCard = ({ data, setApiCaller }) => {
+const ProductCard = ({ data, setApiCaller,name }) => {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
@@ -75,7 +77,13 @@ const ProductCard = ({ data, setApiCaller }) => {
           >
             Delete
           </Button>
-          <Button className="w-full">Edit</Button>
+          <GlobalDialog
+            trigger={<Button className="w-full">Edit</Button>}
+            title={<h1>{name}</h1>}
+            className={" max-w-screen max-h-screen"}
+          >
+            <EditProduct/>
+          </GlobalDialog>
         </div>
       </CardFooter>
     </Card>

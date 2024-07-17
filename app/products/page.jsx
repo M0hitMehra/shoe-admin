@@ -21,7 +21,7 @@ const Products = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(9);
-const [apiCaller, setApiCaller] = useState(false)
+  const [apiCaller, setApiCaller] = useState(false);
 
   useEffect(() => {
     fetchUser();
@@ -48,7 +48,7 @@ const [apiCaller, setApiCaller] = useState(false)
     };
 
     fetchProducts();
-  }, [page, search,apiCaller]);
+  }, [page, search, apiCaller]);
 
   useEffect(() => {
     if (!loading && !user && userFetched) {
@@ -59,7 +59,6 @@ const [apiCaller, setApiCaller] = useState(false)
   if (loading) {
     return <Loader />;
   }
- 
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -72,48 +71,58 @@ const [apiCaller, setApiCaller] = useState(false)
 
   return (
     <div className="flex flex-col gap-8 w-full h-full p-4">
-    <div className="grid grid-cols-1 sm:grid-cols-6 gap-4">
-      <Input
-        className="col-span-4"
-        value={search}
-        onChange={handleSearchChange}
-        placeholder="Search products..."
-      />
-      <div className="col-span-2 flex justify-around items-center">
-        <Button>Create</Button>
-        <Button>Delete</Button>
+      <div className="grid grid-cols-1 sm:grid-cols-6 gap-4">
+        <Input
+          className="col-span-4"
+          value={search}
+          onChange={handleSearchChange}
+          placeholder="Search products..."
+        />
+        <div className="col-span-2 flex justify-around items-center">
+          <Button>Create</Button>
+          <Button>Delete</Button>
+        </div>
       </div>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div className="flex flex-col justify-center w-full items-center gap-5">
+          <div className="flex justify-center items-center gap-10 flex-wrap w-full">
+            {products.map((product, i) => (
+              <ProductCard
+                key={i}
+                data={product}
+                setApiCaller={setApiCaller}
+                name={
+                  user?.firstName?.trim() +
+                  " " +
+                  user?.lastName?.trim() +
+                  `(${user?._id})`
+                }
+              />
+            ))}
+          </div>
+          <Separator />
+          <div className="flex justify-center items-center gap-5 mb-6">
+            <Button
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 1}
+            >
+              Previous
+            </Button>
+            <span>
+              Page {page} of {totalPages}
+            </span>
+            <Button
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
-    {isLoading ? (
-      <Loader />
-    ) : (
-      <div className="flex flex-col justify-center w-full items-center gap-5">
-        <div className="flex justify-center items-center gap-10 flex-wrap w-full">
-          {products.map((product, i) => (
-            <ProductCard key={i} data={product} setApiCaller={setApiCaller} />
-          ))}
-        </div>
-        <Separator />
-        <div className="flex justify-center items-center gap-5 mb-6">
-          <Button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page === 1}
-          >
-            Previous
-          </Button>
-          <span>
-            Page {page} of {totalPages}
-          </span>
-          <Button
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page === totalPages}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    )}
-  </div>
   );
 };
 
