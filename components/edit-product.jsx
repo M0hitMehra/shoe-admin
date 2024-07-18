@@ -33,7 +33,7 @@ const editSchema = z.object({
   description: z.string().optional(),
 });
 
-const EditProduct = () => {
+const EditProduct = ({ data }) => {
   const [brands, setBrands] = useState([]);
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
@@ -48,14 +48,14 @@ const EditProduct = () => {
   } = useForm({
     resolver: zodResolver(editSchema),
     defaultValues: {
-      title: "",
-      price: "",
-      stock: "",
-      brand: "",
-      color: "",
-      size: "",
-      category: "",
-      description: "",
+      title: data?.title,
+      price: data?.price,
+      stock: data?.stock,
+      brand: data?.brand?.name,
+      color: data?.color?.name,
+      size: data?.size?.name,
+      category: data?.category?.name,
+      description: data?.description,
     },
   });
 
@@ -96,13 +96,10 @@ const EditProduct = () => {
     <Card>
       <CardHeader>
         <CardTitle>Edit Product</CardTitle>
-        <CardDescription>Edit a product to chnage the values</CardDescription>
+        <CardDescription>Edit a product to change the values</CardDescription>
       </CardHeader>
       <CardContent className="overflow-auto max-h-[70vh]">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className=" flex flex-col gap-5"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           {/* Title */}
           <div className="grid w-full max-w-s items-center gap-2">
             <Label htmlFor="title">Title</Label>
@@ -154,10 +151,20 @@ const EditProduct = () => {
           <div className="flex gap-5">
             <div className="grid w-full max-w-s items-center gap-2">
               <Label htmlFor="brand">Brand</Label>
-              <select id="brand" {...register("brand")}>
-                <option value="">Select a brand</option>
+              <select
+                id="brand"
+                {...register("brand")}
+                className="p-2 border rounded-md"
+                defaultValue={data?.brand?.name}
+              >
+                {/* <option value="">Select a brand</option> */}
                 {brands?.map((brand) => (
-                  <option key={brand._id} value={brand._id}>
+                  <option
+                    selected={brand._id === data?.brand?._id}
+                    key={brand._id}
+                    value={brand._id}
+                    className="p-2"
+                  >
                     {brand.name}
                   </option>
                 ))}
@@ -170,10 +177,19 @@ const EditProduct = () => {
             </div>
             <div className="grid w-full max-w-s items-center gap-2">
               <Label htmlFor="size">Size</Label>
-              <select id="size" {...register("size")}>
-                <option value="">Select a size</option>
+              <select
+                id="size"
+                {...register("size")}
+                className="p-2 border rounded-md"
+                defaultValue={data?.size?.name}
+              >
+                {/* <option value="">Select a size</option> */}
                 {sizes?.map((size) => (
-                  <option key={size._id} value={size._id}>
+                  <option
+                    key={size._id}
+                    value={size._id}
+                    selected={size._id === data?.size?._id}
+                  >
                     {size.name}
                   </option>
                 ))}
@@ -190,10 +206,19 @@ const EditProduct = () => {
           <div className="flex gap-5">
             <div className="grid w-full max-w-s items-center gap-2">
               <Label htmlFor="category">Category</Label>
-              <select id="category" {...register("category")}>
-                <option value="">Select a category</option>
+              <select
+                id="category"
+                {...register("category")}
+                className="p-2 border rounded-md"
+                defaultValue={data?.category?.name}
+              >
+                {/* <option value="">Select a category</option> */}
                 {categories?.map((category) => (
-                  <option key={category._id} value={category._id}>
+                  <option
+                    key={category._id}
+                    value={category._id}
+                    selected={category._id === data?.category?._id}
+                  >
                     {category.name}
                   </option>
                 ))}
@@ -206,10 +231,19 @@ const EditProduct = () => {
             </div>
             <div className="grid w-full max-w-s items-center gap-2">
               <Label htmlFor="color">Color</Label>
-              <select id="color" {...register("color")}>
-                <option value="">Select a color</option>
+              <select
+                id="color"
+                {...register("color")}
+                className="p-2 border rounded-md"
+                defaultValue={data?.color?.name}
+              >
+                {/* <option value="">Select a color</option> */}
                 {colors?.map((color) => (
-                  <option key={color._id} value={color._id}>
+                  <option
+                    selected={color._id === data?.color?._id}
+                    key={color._id}
+                    value={color._id}
+                  >
                     {color.name}
                   </option>
                 ))}
@@ -229,6 +263,7 @@ const EditProduct = () => {
               id="description"
               placeholder="Enter product description"
               {...register("description")}
+              className="p-2 border rounded-md"
             />
             {errors.description && (
               <p className="text-red-500 text-sm mt-2">

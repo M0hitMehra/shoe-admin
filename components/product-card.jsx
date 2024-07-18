@@ -82,7 +82,7 @@ const ProductCard = ({ data, setApiCaller,name }) => {
             title={<h1>{name}</h1>}
             className={" max-w-screen max-h-screen"}
           >
-            <EditProduct/>
+            <EditProduct data={data} />
           </GlobalDialog>
         </div>
       </CardFooter>
