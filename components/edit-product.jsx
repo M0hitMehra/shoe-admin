@@ -51,10 +51,10 @@ const EditProduct = ({ data }) => {
       title: data?.title,
       price: data?.price,
       stock: data?.stock,
-      brand: data?.brand?.name,
-      color: data?.color?.name,
-      size: data?.size?.name,
-      category: data?.category?.name,
+      brand: data?.brand?._id,
+      color: data?.color?._id,
+      size: data?.size?._id,
+      category: data?.category?._id,
       description: data?.description,
     },
   });
@@ -85,10 +85,29 @@ const EditProduct = ({ data }) => {
 
   const onSubmit = async (formData) => {
     try {
-      await axios.put(`${server}/products/${formData.id}`, formData);
-      // Optionally reset the form or show a success message
+      const response = await axios.put(
+        `${server}/product/update/${data._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response?.data?.success) {
+        toast({
+          variant: "success",
+          title: "Product updated successfully",
+        });
+      }
     } catch (error) {
       console.error("Failed to update product", error);
+      toast({
+        variant: "destructive",
+        title: error?.response?.data?.message,
+      });
     }
   };
 
