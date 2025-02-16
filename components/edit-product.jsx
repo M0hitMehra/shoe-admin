@@ -13,24 +13,74 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "./ui/button";
+import { Plus, Trash2 } from "lucide-react";
 import axios from "axios";
 import { server } from "@/lib/utils";
 import { toast } from "./ui/use-toast";
 
+const variantSchema = z.object({
+  color: z
+    .string({ required_error: "Color is required" })
+    .min(1, "Color cannot be empty"),
+  size: z
+    .string({ required_error: "Size is required" })
+    .min(1, "Size cannot be empty"),
+  price: z
+    .number({
+      invalid_type_error: "Price must be in number",
+      required_error: "Price is required",
+    })
+    .min(1, "Price cannot be empty")
+    .positive({ message: "Price must be positive" }),
+  stock: z
+    .number({
+      invalid_type_error: "Stock must be in number",
+      required_error: "Stock is required",
+    })
+    .min(1, "Stock cannot be empty")
+    .int()
+    .positive({ message: "Stock must be a positive integer" }),
+});
+
 const editSchema = z.object({
-  title: z.string({ required_error: "Title is required" }),
-  price: z.number().positive({ message: "Price must be positive" }),
+  productId: z
+    .string({ required_error: "Product ID is required" })
+    .min(1, "Product ID cannot be empty"),
+  title: z
+    .string({ required_error: "Title is required" })
+    .min(1, "Title cannot be empty"),
   stock: z
     .number()
     .int()
     .positive({ message: "Stock must be a positive integer" }),
-  brand: z.string({ required_error: "Brand is required" }),
-  color: z.string({ required_error: "Color is required" }),
-  size: z.string({ required_error: "Size is required" }),
-  category: z.string({ required_error: "Category is required" }),
+  brand: z
+    .string({ required_error: "Brand is required" })
+    .min(1, "Brand cannot be empty"),
+  category: z
+    .string({ required_error: "Category is required" })
+    .min(1, "Category cannot be empty"),
   description: z.string().optional(),
+  variants: z.array(variantSchema),
+  otherDetails: z.object({
+    productStory: z.object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+    }),
+    productDetails: z.object({
+      title: z.string().optional(),
+      description: z.array(z.string()).optional(),
+    }),
+    manufacturAddress: z.object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+    }),
+    countoryOrigin: z.object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+    }),
+  }),
 });
 
 const EditProduct = ({ data }) => {
@@ -42,25 +92,77 @@ const EditProduct = ({ data }) => {
 
   const {
     register,
+    control,
+    watch,
+    setValue,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm({
     resolver: zodResolver(editSchema),
     defaultValues: {
+      productId: data?.productId,
       title: data?.title,
-      price: data?.price,
       stock: data?.stock,
       brand: data?.brand?._id,
-      color: data?.color?._id,
-      size: data?.size?._id,
       category: data?.category?._id,
       description: data?.description,
+      variants:
+        data?.variants?.map((variant) => ({
+          color: variant.color._id,
+          size: variant.size._id,
+          price: variant.price,
+          stock: variant.stock,
+        })) || [],
+      otherDetails: {
+        productStory: {
+          title: data?.otherDetails?.productStory?.title || "",
+          description: data?.otherDetails?.productStory?.description || "",
+        },
+        productDetails: {
+          title: data?.otherDetails?.productDetails?.title || "",
+          description: data?.otherDetails?.productDetails?.description || [],
+        },
+        manufacturAddress: {
+          title: data?.otherDetails?.manufacturAddress?.title || "",
+          description: data?.otherDetails?.manufacturAddress?.description || "",
+        },
+        countoryOrigin: {
+          title: data?.otherDetails?.countoryOrigin?.title || "",
+          description: data?.otherDetails?.countoryOrigin?.description || "",
+        },
+      },
     },
   });
 
+  const currentDescription = watch("otherDetails.productDetails.description") || [];
+  
+  // Add a new empty pointer
+  const addPointer = () => {
+    setValue("otherDetails.productDetails.description", [...currentDescription, ""]);
+  };
+
+  // Remove a pointer at specific index
+  const removePointer = (indexToRemove) => {
+    setValue(
+      "otherDetails.productDetails.description",
+      currentDescription.filter((_, index) => index !== indexToRemove)
+    );
+  };
+
+  // Update a specific pointer
+  const updatePointer = (index, value) => {
+    const newDescription = [...currentDescription];
+    newDescription[index] = value;
+    setValue("otherDetails.productDetails.description", newDescription);
+  };
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "variants",
+  });
+
   useEffect(() => {
-    // Fetch dropdown data from the server
     const fetchData = async () => {
       try {
         const [brandRes, colorRes, sizeRes, categoryRes] = await Promise.all([
@@ -84,6 +186,7 @@ const EditProduct = ({ data }) => {
   }, []);
 
   const onSubmit = async (formData) => {
+    console.log(formData);
     try {
       const response = await axios.put(
         `${server}/product/update/${data._id}`,
@@ -114,124 +217,85 @@ const EditProduct = ({ data }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit Product</CardTitle>
-        <CardDescription>Edit a product to change the values</CardDescription>
+        <CardTitle>Edit Product ({data?._id})</CardTitle>
+        <CardDescription>Edit a product and its variants</CardDescription>
       </CardHeader>
       <CardContent className="overflow-auto max-h-[70vh]">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-          {/* Title */}
-          <div className="grid w-full max-w-s items-center gap-2">
-            <Label htmlFor="title">Title</Label>
+          {/* Product ID and Title */}
+          <div className="flex gap-5">
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="productId">Product ID</Label>
+              <Input
+                id="productId"
+                placeholder="Enter product ID"
+                {...register("productId")}
+              />
+              {errors.productId && (
+                <p className="text-red-500 text-sm">
+                  {errors.productId.message}
+                </p>
+              )}
+            </div>
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                placeholder="Enter product title"
+                {...register("title")}
+              />
+              {errors.title && (
+                <p className="text-red-500 text-sm">{errors.title.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Stock */}
+          <div className="grid w-full items-center gap-2">
+            <Label htmlFor="stock">Overall Stock</Label>
             <Input
-              id="title"
-              placeholder="Enter product title"
-              {...register("title")}
+              id="stock"
+              type="number"
+              placeholder="Enter total product stock"
+              {...register("stock", { valueAsNumber: true })}
             />
-            {errors.title && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.title.message}
-              </p>
+            {errors.stock && (
+              <p className="text-red-500 text-sm">{errors.stock.message}</p>
             )}
           </div>
 
-          {/* Price and Stock */}
+          {/* Brand and Category */}
           <div className="flex gap-5">
-            <div className="grid w-full max-w-s items-center gap-2">
-              <Label htmlFor="price">Price</Label>
-              <Input
-                id="price"
-                type="number"
-                placeholder="Enter product price"
-                {...register("price", { valueAsNumber: true })}
-              />
-              {errors.price && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.price.message}
-                </p>
-              )}
-            </div>
-            <div className="grid w-full max-w-s items-center gap-2">
-              <Label htmlFor="stock">Stock</Label>
-              <Input
-                id="stock"
-                type="number"
-                placeholder="Enter product stock"
-                {...register("stock", { valueAsNumber: true })}
-              />
-              {errors.stock && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.stock.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Brand and Size */}
-          <div className="flex gap-5">
-            <div className="grid w-full max-w-s items-center gap-2">
+            <div className="grid w-full items-center gap-2">
               <Label htmlFor="brand">Brand</Label>
               <select
                 id="brand"
                 {...register("brand")}
                 className="p-2 border rounded-md"
-                defaultValue={data?.brand?.name}
               >
-                {/* <option value="">Select a brand</option> */}
+                <option value="">Select a brand</option>
                 {brands?.map((brand) => (
                   <option
-                    selected={brand._id === data?.brand?._id}
                     key={brand._id}
                     value={brand._id}
-                    className="p-2"
+                    selected={brand._id === data?.brand?._id}
                   >
                     {brand.name}
                   </option>
                 ))}
               </select>
               {errors.brand && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.brand.message}
-                </p>
+                <p className="text-red-500 text-sm">{errors.brand.message}</p>
               )}
             </div>
-            <div className="grid w-full max-w-s items-center gap-2">
-              <Label htmlFor="size">Size</Label>
-              <select
-                id="size"
-                {...register("size")}
-                className="p-2 border rounded-md"
-                defaultValue={data?.size?.name}
-              >
-                {/* <option value="">Select a size</option> */}
-                {sizes?.map((size) => (
-                  <option
-                    key={size._id}
-                    value={size._id}
-                    selected={size._id === data?.size?._id}
-                  >
-                    {size.name}
-                  </option>
-                ))}
-              </select>
-              {errors.size && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.size.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Category and Color */}
-          <div className="flex gap-5">
-            <div className="grid w-full max-w-s items-center gap-2">
+            <div className="grid w-full items-center gap-2">
               <Label htmlFor="category">Category</Label>
               <select
                 id="category"
                 {...register("category")}
                 className="p-2 border rounded-md"
-                defaultValue={data?.category?.name}
               >
-                {/* <option value="">Select a category</option> */}
+                <option value="">Select a category</option>
                 {categories?.map((category) => (
                   <option
                     key={category._id}
@@ -243,67 +307,265 @@ const EditProduct = ({ data }) => {
                 ))}
               </select>
               {errors.category && (
-                <p className="text-red-500 text-sm mt-2">
+                <p className="text-red-500 text-sm">
                   {errors.category.message}
-                </p>
-              )}
-            </div>
-            <div className="grid w-full max-w-s items-center gap-2">
-              <Label htmlFor="color">Color</Label>
-              <select
-                id="color"
-                {...register("color")}
-                className="p-2 border rounded-md"
-                defaultValue={data?.color?.name}
-              >
-                {/* <option value="">Select a color</option> */}
-                {colors?.map((color) => (
-                  <option
-                    selected={color._id === data?.color?._id}
-                    key={color._id}
-                    value={color._id}
-                  >
-                    {color.name}
-                  </option>
-                ))}
-              </select>
-              {errors.color && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.color.message}
                 </p>
               )}
             </div>
           </div>
 
           {/* Description */}
-          <div className="grid w-full max-w-s items-center gap-2">
+          <div className="grid w-full items-center gap-2">
             <Label htmlFor="description">Description</Label>
             <textarea
               id="description"
               placeholder="Enter product description"
               {...register("description")}
               className="p-2 border rounded-md"
+              rows={4}
             />
-            {errors.description && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.description.message}
-              </p>
-            )}
           </div>
 
-          <Button ref={buttonRef} type="submit" className="hidden w-full mt-5">
-            Save
+          {/* Variants */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Label>Product Variants</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  append({ color: "", size: "", price: "", stock: "" })
+                }
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Variant
+              </Button>
+            </div>
+
+            {fields.map((field, index) => (
+              <div key={field.id} className="p-4 border rounded-md space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-medium">Variant {index + 1}</h4>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(index)}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Color</Label>
+                    <select
+                      {...register(`variants.${index}.color`)}
+                      className="w-full p-2 border rounded-md"
+                    >
+                      <option value="">Select color</option>
+                      {colors?.map((color) => (
+                        <option key={color._id} value={color._id}>
+                          {color.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    {errors?.variants?.[index]?.color && (
+                      <p className="text-red-500 text-sm">
+                        {errors?.variants?.[index]?.color?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Size</Label>
+                    <select
+                      {...register(`variants.${index}.size`)}
+                      className="w-full p-2 border rounded-md"
+                    >
+                      <option value="">Select size</option>
+                      {sizes?.map((size) => (
+                        <option key={size._id} value={size._id}>
+                          {size.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    {errors?.variants?.[index]?.size && (
+                      <p className="text-red-500 text-sm">
+                        {errors?.variants?.[index]?.size?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Price</Label>
+                    <Input
+                      type="number"
+                      {...register(`variants.${index}.price`, {
+                        valueAsNumber: true,
+                      })}
+                      placeholder="Enter price"
+                    />
+
+                    {errors?.variants?.[index]?.price && (
+                      <p className="text-red-500 text-sm">
+                        {errors?.variants?.[index]?.price?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Stock</Label>
+                    <Input
+                      type="number"
+                      {...register(`variants.${index}.stock`, {
+                        valueAsNumber: true,
+                      })}
+                      placeholder="Enter stock"
+                    />
+
+                    {errors?.variants?.[index]?.stock && (
+                      <p className="text-red-500 text-sm">
+                        {errors?.variants?.[index]?.stock?.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Other Details */}
+          <div className="space-y-4">
+            <Label>Other Details</Label>
+
+            {/* Product Story */}
+            <div className="space-y-2">
+              <Input
+                {...register("otherDetails.productStory.title")}
+                placeholder="Product Story Title"
+              />
+              <textarea
+                {...register("otherDetails.productStory.description")}
+                placeholder="Product Story Description"
+                className="w-full p-2 border rounded-md"
+                rows={3}
+              />
+            </div>
+
+            {/* Product Details */}
+            <div className="space-y-2 flex flex-col gap-4 p-1">
+              <div className="grid w-full gap-2">
+                <Label htmlFor="productDetailsTitle">
+                  Product Details Title
+                </Label>
+                <Input
+                  id="productDetailsTitle"
+                  {...register("otherDetails.productDetails.title")}
+                  placeholder="Product Details Title"
+                />
+              </div>
+
+              {/* <div className="grid w-full gap-2">
+                <Label htmlFor="productDetailsDescription">
+                  Product Details (one per line)
+                </Label>
+                <textarea
+                  id="productDetailsDescription"
+                  className="w-full min-h-[100px] p-2 border rounded-md"
+                  placeholder="Enter product details (one per line)"
+                  onChange={handleDescriptionChange}
+                  value={displayValue || ""}
+                  rows={5}
+                  // onKeyDown={handleKeyDown}
+                />
+              </div> */}
+
+
+<div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label>Product Details Points</Label>
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm"
+            onClick={addPointer}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Point
+          </Button>
+        </div>
+
+        <div className="space-y-2">
+          {currentDescription.map((point, index) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                value={point}
+                onChange={(e) => updatePointer(index, e.target.value)}
+                placeholder={`Detail point ${index + 1}`}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => removePointer(index)}
+                className="shrink-0"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {currentDescription.length === 0 && (
+          <p className="text-sm text-gray-500 italic">
+            No detail points added yet. Click 'Add Point' to begin.
+          </p>
+        )}
+      </div>
+
+
+              
+            </div>
+
+            {/* Manufacturing Address */}
+            <div className="space-y-2">
+              <Input
+                {...register("otherDetails.manufacturAddress.title")}
+                placeholder="Manufacturing Address Title"
+              />
+              <Input
+                {...register("otherDetails.manufacturAddress.description")}
+                placeholder="Manufacturing Address"
+              />
+            </div>
+
+            {/* Country Origin */}
+            <div className="space-y-2">
+              <Input
+                {...register("otherDetails.countoryOrigin.title")}
+                placeholder="Country Origin Title"
+              />
+              <Input
+                {...register("otherDetails.countoryOrigin.description")}
+                placeholder="Country Origin"
+              />
+            </div>
+          </div>
+
+          <Button ref={buttonRef} type="submit" className="hidden">
+            Save Changes
           </Button>
         </form>
       </CardContent>
       <CardFooter>
-        <Button
-          className="w-full"
-          onClick={() => {
-            buttonRef?.current?.click();
-          }}
-        >
-          Save
+        <Button className="w-full" onClick={() => buttonRef?.current?.click()}>
+          Save Changes
         </Button>
       </CardFooter>
     </Card>

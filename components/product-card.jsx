@@ -16,8 +16,9 @@ import { server } from "@/lib/utils";
 import { toast } from "./ui/use-toast";
 import GlobalDialog from "./global-dialog";
 import EditProduct from "./edit-product";
+import { Separator } from "./ui/separator";
 
-const ProductCard = ({ data, setApiCaller,name }) => {
+const ProductCard = ({ data, setApiCaller, name }) => {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ const ProductCard = ({ data, setApiCaller,name }) => {
   };
 
   return (
-    <Card className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-1 h-[500px] relative">
+    <Card className="w-full sm:w-[48%] md:w-[32%] lg:w-[24%] xl:w-[19%] p-1 h-[500px] relative">
       <CardHeader>
         <CardTitle>
           {data?.title?.slice(0, 30)}
@@ -63,12 +64,21 @@ const ProductCard = ({ data, setApiCaller,name }) => {
       </CardHeader>
       <CardContent>
         <ImageCarousel images={images} />
-        <CardDescription>
+        <CardDescription className="flex flex-col gap-2 my-1">
           {data?.description?.slice(0, 130)}
           {data?.description?.length > 130 ? "..." : ""}
+          <Separator />
+          <span className=" text-base font-semibold break-words">
+            <span className="align-center flex items-center justify-center">
+              Product Id :
+            </span>
+            <span className="align-center flex items-center justify-center">
+              {data?._id}
+            </span>
+          </span>
         </CardDescription>
       </CardContent>
-      <CardFooter className="w-full  absolute bottom-0 ">
+      <CardFooter className="w-full absolute bottom-0">
         <div className="w-full flex justify-around items-center gap-3">
           <Button
             className="w-full"
@@ -80,7 +90,7 @@ const ProductCard = ({ data, setApiCaller,name }) => {
           <GlobalDialog
             trigger={<Button className="w-full">Edit</Button>}
             title={<h1>{name}</h1>}
-            className={" max-w-screen max-h-screen"}
+            className={"max-w-screen max-h-screen"}
           >
             <EditProduct data={data} />
           </GlobalDialog>

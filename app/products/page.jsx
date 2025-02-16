@@ -10,6 +10,8 @@ import axios from "axios";
 import { server } from "@/lib/utils";
 import ProductCard from "@/components/product-card";
 import { Separator } from "@/components/ui/separator";
+import GlobalDialog from "@/components/global-dialog";
+import CreateProduct from "@/components/create-product";
 
 const Products = () => {
   const router = useRouter();
@@ -20,7 +22,7 @@ const Products = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [limit] = useState(9);
+  const [limit] = useState(12);
   const [apiCaller, setApiCaller] = useState(false);
 
   useEffect(() => {
@@ -71,15 +73,22 @@ const Products = () => {
 
   return (
     <div className="flex flex-col gap-8 w-full h-full p-4">
-      <div className="grid grid-cols-1 sm:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
         <Input
-          className="col-span-4"
+          className="col-span-10"
           value={search}
           onChange={handleSearchChange}
           placeholder="Search products..."
         />
         <div className="col-span-2 flex justify-around items-center">
-          <Button>Create</Button>
+          <GlobalDialog
+            trigger={<Button>Create</Button>}
+            title={<h1>Create a product</h1>}
+            className={"max-w-screen max-h-screen"}
+
+          >
+            <CreateProduct />
+          </GlobalDialog>
           <Button>Delete</Button>
         </div>
       </div>
