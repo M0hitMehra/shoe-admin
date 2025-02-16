@@ -524,7 +524,7 @@ const EditProduct = ({ data }) => {
 
         {currentDescription.length === 0 && (
           <p className="text-sm text-gray-500 italic">
-            No detail points added yet. Click 'Add Point' to begin.
+            No detail points added yet. Click &apos;Add Point&apos; to begin.
           </p>
         )}
       </div>
