@@ -50,7 +50,7 @@ const Products = () => {
     };
 
     fetchProducts();
-  }, [page, search, apiCaller]);
+  }, [page, search, apiCaller,limit]);
 
   useEffect(() => {
     if (!loading && !user && userFetched) {
